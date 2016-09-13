@@ -33,7 +33,9 @@ namespace MyFaceApp
 
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            
+            TrainImages trainimage = new TrainImages();
+            //trainimage.train(faceServiceClient);
+
             var openDlg = new Microsoft.Win32.OpenFileDialog();
 
             openDlg.Filter = "JPEG Image(*.jpg)|*.jpg";
@@ -95,120 +97,8 @@ namespace MyFaceApp
                     Title = String.Format("I don't know who this is");
                 }
                 }
-            /**
-                        if (faceRects.Length > 0)
-                        {
-                            DrawingVisual visual = new DrawingVisual();
-                            DrawingContext drawingContext = visual.RenderOpen();
-                            drawingContext.DrawImage(bitmapSource,
-                                new Rect(0, 0, bitmapSource.Width, bitmapSource.Height));
-                            double dpi = bitmapSource.DpiX;
-                            double resizeFactor = 96 / dpi;
-
-                            foreach (var faceRect in faceRects)
-                            {
-                                drawingContext.DrawRectangle(
-                                    Brushes.Transparent,
-                                    new Pen(Brushes.Red, 2),
-                                    new Rect(
-                                        faceRect.Left * resizeFactor,
-                                        faceRect.Top * resizeFactor,
-                                        faceRect.Width * resizeFactor,
-                                        faceRect.Height * resizeFactor
-                                        )
-                                );
-                            }
-
-                            drawingContext.Close();
-                            RenderTargetBitmap faceWithRectBitmap = new RenderTargetBitmap(
-                                (int)(bitmapSource.PixelWidth * resizeFactor),
-                                (int)(bitmapSource.PixelHeight * resizeFactor),
-                                96,
-                                96,
-                                PixelFormats.Pbgra32);
-
-                            faceWithRectBitmap.Render(visual);
-                            FacePhoto.Source = faceWithRectBitmap;
-                        }
-
-                **/
         }
-
-        private async void train_pictures()
-        {
-            // Create an empty person group
-            string personGroupId = "myfriends";
-            try
-            {
-                await faceServiceClient.CreatePersonGroupAsync(personGroupId, "My Friends");
-            }
-            catch
-            {
-
-            }
-
-            // Define Anna
-            CreatePersonResult friend1 = await faceServiceClient.CreatePersonAsync(
-                // Id of the person group that the person belonged to
-                personGroupId,
-                // Name of the person
-                "Anna"
-            );
-            // Define Bill
-            CreatePersonResult friend2 = await faceServiceClient.CreatePersonAsync(
-                // Id of the person group that the person belonged to
-                personGroupId,
-                // Name of the person
-                "Bill"
-            );
-
-            // Define Bill and Clare in the same way
-
-            // Directory contains image files of Anna
-            const string friend1ImageDir = @"C:\Temp\Family1-Mom";
-
-            foreach (string imagePath in Directory.GetFiles(friend1ImageDir, "*.jpg"))
-            {
-                using (Stream s = File.OpenRead(imagePath))
-                {
-                    // Detect faces in the image and add to Anna
-                    await faceServiceClient.AddPersonFaceAsync(
-                        personGroupId, friend1.PersonId, s);
-                }
-            }
-            // Do the same for Bill and Clare
-
-            // Directory contains image files of Anna
-            const string friend2ImageDir = @"C:\Temp\Family2-Man";
-
-            foreach (string imagePath in Directory.GetFiles(friend2ImageDir, "*.jpg"))
-            {
-                using (Stream s = File.OpenRead(imagePath))
-                {
-                    // Detect faces in the image and add to Anna
-                    await faceServiceClient.AddPersonFaceAsync(
-                        personGroupId, friend2.PersonId, s);
-                }
-            }
-
-
-            //Lets Train them
-            await faceServiceClient.TrainPersonGroupAsync(personGroupId);
-            TrainingStatus trainingStatus = null;
-            while (true)
-            {
-                trainingStatus = await faceServiceClient.GetPersonGroupTrainingStatusAsync(personGroupId);
-
-                if (trainingStatus.Status.Equals("running"))
-                {
-                    break;
-                }
-
-                await Task.Delay(1000);
-            }
-        }
-
-
+       
         private async Task<FaceRectangle[]> UploadAndDetectFaces(string imageFilePath)
         {
             try
